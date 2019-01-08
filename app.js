@@ -39,12 +39,11 @@ app.post('/api/courses', (req, resp) => {
   const schema = {
     name: Joi.string().min(3).required()
   }
-  const result = Joi.validate(req.body, schema);
-  if(result.error) {
-    resp.status(400).send(result.error.details[0].message);
+  const {error} = courseValidator(request.body);
+  if(error) {
+    response.status(400).send(error.details[0].message);
     return;
   }
-
   const course = {
     id: courses.length + 1,
     name: req.body.name
@@ -55,6 +54,27 @@ app.post('/api/courses', (req, resp) => {
 
 //http put requests
 
+app.put('/api/courses/:id', (request, response) => {
+  //find course , if not found return 404
+  const course = courses.find(c => c.id === +request.params.id)
+  if(!course) response.status(404).send('The course with this id doesnt exist')
+  //validate the incoming course, if invalid return 400-Bad requests
+  const {error} = courseValidator(request.body);
+  if(error) {
+    response.status(400).send(error.details[0].message);
+    return;
+  }
+  //update the course
+  course.name = request.body.name
+  response.send(course)
+})
+
+const courseValidator = course => {
+  const schema = {
+    name: Joi.string().min(3).required()
+  }
+  return Joi.validate(course, schema);
+}
 
 const port = process.env.PORT || 3006
 app.listen(port, () => console.log(`listening on port ${port}`))
