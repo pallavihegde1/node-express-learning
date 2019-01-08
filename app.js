@@ -69,6 +69,17 @@ app.put('/api/courses/:id', (request, response) => {
   response.send(course)
 })
 
+// HTTP DELETE
+app.delete('/api/courses/:id', (request, response) => {
+  //find course , if not found return 404
+  const course = courses.find(c => c.id === +request.params.id)
+  if(!course) response.status(404).send('The course with this id doesnt exist')
+  //delete
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);
+  response.send(course)
+})
+
 const courseValidator = course => {
   const schema = {
     name: Joi.string().min(3).required()
