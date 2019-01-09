@@ -1,8 +1,27 @@
 const express = require('express');
 const Joi = require('joi');
+const logger = require('./logger');
+const morgan = require('morgan')
 
 const app = express()
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
+app.use(express.static('public'));
+
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`)
+console.log(`app: ${app.get('env')}`)
+
+//middleware
+app.use(logger);
+
+if(app.get('env') === 'development') {
+  app.use(morgan('tiny'));
+  console.log('Morgan enabled');
+}
+app.use(function(req, resp, next) {
+  console.log('second custom middleware')
+  next();
+})
 
 const courses = [
  {id: 1, name: 'javascript'},
